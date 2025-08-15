@@ -3,11 +3,9 @@ package br.com.ifba.usuario.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Getter @Setter
 public class UsuarioGetResponseDto {
+    private Long id;
     private String nome;
     private String email;
-    // senha não incluída
 }
-
