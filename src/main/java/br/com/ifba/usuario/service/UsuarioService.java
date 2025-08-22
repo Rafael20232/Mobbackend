@@ -5,7 +5,7 @@ import br.com.ifba.infrastructure.entity.mapper.ObjectMapperUtil;
 import br.com.ifba.usuario.dao.UsuarioDao;
 import br.com.ifba.usuario.dto.UsuarioGetResponseDto;
 import br.com.ifba.usuario.dto.UsuarioPostRequestDto;
-import br.com.ifba.usuario.entity.Usuario;
+import br.com.ifba.usuario.entity.Autor;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,9 @@ public class UsuarioService {
     }
 
     public UsuarioGetResponseDto buscarPorId(Long id) {
-        Usuario usuario = usuarioDao.findById(id)
+        Autor autor = usuarioDao.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-        return mapper.map(usuario, UsuarioGetResponseDto.class);
+        return mapper.map(autor, UsuarioGetResponseDto.class);
     }
 
     @Transactional
@@ -35,21 +35,21 @@ public class UsuarioService {
         if (usuarioDao.existsByEmail(dto.getEmail())) {
             throw new BusinessException("E-mail já cadastrado");
         }
-        Usuario usuario = mapper.map(dto, Usuario.class);
-        Usuario salvo = usuarioDao.save(usuario);
+        Autor autor = mapper.map(dto, Autor.class);
+        Autor salvo = usuarioDao.save(autor);
         return mapper.map(salvo, UsuarioGetResponseDto.class);
     }
 
     @Transactional
     public void atualizar(Long id, UsuarioPostRequestDto dto) {
-        Usuario usuario = usuarioDao.findById(id)
+        Autor autor = usuarioDao.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-        usuario.setNome(dto.getNome());
-        usuario.setEmail(dto.getEmail());
-        usuario.setSenha(dto.getSenha());
+        autor.setNome(dto.getNome());
+        autor.setEmail(dto.getEmail());
+        autor.setSenha(dto.getSenha());
 
-        usuarioDao.save(usuario);
+        usuarioDao.save(autor);
     }
 
     @Transactional
