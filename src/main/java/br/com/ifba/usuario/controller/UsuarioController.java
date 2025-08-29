@@ -1,49 +1,54 @@
 package br.com.ifba.usuario.controller;
 
-import br.com.ifba.usuario.dto.UsuarioGetResponseDto;
-import br.com.ifba.usuario.dto.UsuarioPostRequestDto;
+import br.com.ifba.usuario.entity.Usuario;
 import br.com.ifba.usuario.service.UsuarioService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuarios")
-@RequiredArgsConstructor
+@RequestMapping("/api/usuarios")
 public class UsuarioController {
 
     private final UsuarioService service;
 
-    @GetMapping
-    public ResponseEntity<List<UsuarioGetResponseDto>> getAll() {
-        return ResponseEntity.ok(service.listar());
+    public UsuarioController(UsuarioService service) {
+        this.service = service;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UsuarioGetResponseDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
-    }
-
+    // Criar
     @PostMapping
-    public ResponseEntity<UsuarioGetResponseDto> create(@RequestBody @Valid UsuarioPostRequestDto dto) {
-        UsuarioGetResponseDto salvo = service.criar(dto);
-        return ResponseEntity.created(URI.create("/usuarios/" + salvo.getId())).body(salvo);
+    public ResponseEntity<Usuario> criar(@RequestBody Usuario usuario) {
+        return ResponseEntity.ok(service.save(usuario));
     }
 
+    // Buscar todos
+    @GetMapping
+    public ResponseEntity<List<Usuario>> listarTodos() {
+        return ResponseEntity.ok(service.findAll());
+    }
+
+    // Buscar por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
+        return service.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Atualizar
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody @Valid UsuarioPostRequestDto dto) {
-        service.atualizar(id, dto);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Usuario> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
+        return service.update(id, usuario)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
+    // Deletar
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.deletar(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        boolean deleted = service.delete(id);
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
-
 }

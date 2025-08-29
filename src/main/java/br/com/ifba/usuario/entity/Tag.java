@@ -1,15 +1,9 @@
 package br.com.ifba.usuario.entity;
 
-import br.com.ifba.infrastructure.entity.PersistenceEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -18,11 +12,14 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tag extends PersistenceEntity {
+public class Tag implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String nome;
-    private String slug;
 
     @ManyToMany(mappedBy = "tags")
-    private List<Post> posts = new ArrayList<>();
+    private List<Post> posts;
 }

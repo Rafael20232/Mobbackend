@@ -1,62 +1,52 @@
 package br.com.ifba.usuario.service;
 
-import br.com.ifba.infrastructure.entity.exception.BusinessException;
-import br.com.ifba.infrastructure.entity.mapper.ObjectMapperUtil;
-import br.com.ifba.usuario.dao.UsuarioDao;
-import br.com.ifba.usuario.dto.UsuarioGetResponseDto;
-import br.com.ifba.usuario.dto.UsuarioPostRequestDto;
-import br.com.ifba.usuario.entity.Autor;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import br.com.ifba.usuario.entity.Usuario;
+import br.com.ifba.usuario.dao.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class UsuarioService {
 
-    private final UsuarioDao usuarioDao;
-    private final ObjectMapperUtil mapper;
+    private final UsuarioRepository repository;
 
-    public List<UsuarioGetResponseDto> listar() {
-        return mapper.mapAll(usuarioDao.findAll(), UsuarioGetResponseDto.class);
+    public UsuarioService(UsuarioRepository repository) {
+        this.repository = repository;
     }
 
-    public UsuarioGetResponseDto buscarPorId(Long id) {
-        Autor autor = usuarioDao.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-        return mapper.map(autor, UsuarioGetResponseDto.class);
+    // Criar ou atualizar usuário
+    public Usuario save(Usuario usuario) {
+        return repository.save(usuario);
     }
 
-    @Transactional
-    public UsuarioGetResponseDto criar(UsuarioPostRequestDto dto) {
-        if (usuarioDao.existsByEmail(dto.getEmail())) {
-            throw new BusinessException("E-mail já cadastrado");
-        }
-        Autor autor = mapper.map(dto, Autor.class);
-        Autor salvo = usuarioDao.save(autor);
-        return mapper.map(salvo, UsuarioGetResponseDto.class);
+    // Buscar todos
+    public List<Usuario> findAll() {
+        return repository.findAll();
     }
 
-    @Transactional
-    public void atualizar(Long id, UsuarioPostRequestDto dto) {
-        Autor autor = usuarioDao.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
-
-        autor.setNome(dto.getNome());
-        autor.setEmail(dto.getEmail());
-        autor.setSenha(dto.getSenha());
-
-        usuarioDao.save(autor);
+    // Buscar por ID
+    public Optional<Usuario> findById(Long id) {
+        return repository.findById(id);
     }
 
-    @Transactional
-    public void deletar(Long id) {
-        if (!usuarioDao.existsById(id)) {
-            throw new EntityNotFoundException("Usuário não encontrado para exclusão");
-        }
-        usuarioDao.deleteById(id);
+    // Atualizar
+    public Optional<Usuario> update(Long id, Usuario usuarioAtualizado) {
+        return repository.findById(id).map(usuario -> {
+            usuario.setNome(usuarioAtualizado.getNome());
+            usuario.setEmail(usuarioAtualizado.getEmail());
+            usuario.setSenha(usuarioAtualizado.getSenha());
+            usuario.setRole(usuarioAtualizado.getRole());
+            return repository.save(usuario);
+        });
+    }
+
+    // Deletar
+    public boolean delete(Long id) {
+        return repository.findById(id).map(usuario -> {
+            repository.delete(usuario);
+            return true;
+        }).orElse(false);
     }
 }

@@ -1,28 +1,29 @@
 package br.com.ifba.usuario.entity;
 
-import br.com.ifba.usuario.entity.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.io.Serializable;
-import java.util.List;
-
 @Entity
-@Table(name = "autores")
+@Table(name = "perfis")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Autor implements Serializable {
+public class Perfil {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
-
     private String bio;
 
-    @OneToMany(mappedBy = "autor")
-    private List<Post> posts;
+    private String fotoUrl;
+
+    private String linkedin;
+
+    private String github;
+
+    @OneToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 }

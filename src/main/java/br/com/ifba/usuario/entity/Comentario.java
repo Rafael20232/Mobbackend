@@ -1,12 +1,9 @@
 package br.com.ifba.usuario.entity;
 
-import br.com.ifba.infrastructure.entity.PersistenceEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,16 +12,18 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Comentario extends PersistenceEntity {
+public class Comentario implements Serializable {
 
-    private String autorNome;
-    private String autorEmail;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(columnDefinition = "TEXT")
-    private String mensagem;
+    private String conteudo;
 
-    private LocalDateTime dataCriacao;
-    private boolean aprovado;
+    private String autorNome;
+
+    private LocalDateTime dataCriacao = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "post_id")

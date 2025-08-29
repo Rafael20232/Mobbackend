@@ -1,16 +1,10 @@
 package br.com.ifba.usuario.entity;
 
-import br.com.ifba.infrastructure.entity.PersistenceEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import br.com.ifba.usuario.entity.Post;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -19,12 +13,14 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Categoria extends PersistenceEntity {
+public class Categoria implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String nome;
-    private String descricao;
-    private String slug;
 
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
-    private List<Post> posts = new ArrayList<>();
+    @OneToMany(mappedBy = "categoria")
+    private List<Post> posts;
 }
