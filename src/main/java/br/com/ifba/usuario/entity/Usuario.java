@@ -1,9 +1,8 @@
 package br.com.ifba.usuario.entity;
 
+import br.com.ifba.infrastructure.entity.PersistenceEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.io.Serializable;
 
 @Entity
 @Table(name = "usuarios")
@@ -11,11 +10,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Usuario extends PersistenceEntity {
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -27,5 +22,5 @@ public class Usuario implements Serializable {
     private String nome;
 
     @Column(nullable = false)
-    private String role = "USER"; // valor padrão
+    private String role = "USER";
 }

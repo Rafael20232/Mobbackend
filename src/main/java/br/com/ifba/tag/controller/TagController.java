@@ -1,8 +1,8 @@
-package br.com.ifba.usuario.controller;
+package br.com.ifba.tag.controller;
 
-import br.com.ifba.usuario.dto.UsuarioRequestDTO;
-import br.com.ifba.usuario.dto.UsuarioResponseDTO;
-import br.com.ifba.usuario.service.UsuarioService;
+import br.com.ifba.tag.dto.TagRequestDTO;
+import br.com.ifba.tag.dto.TagResponseDTO;
+import br.com.ifba.tag.service.TagService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,33 +13,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/usuarios")
-public class UsuarioController {
+@RequestMapping("/api/tags")
+public class TagController {
 
-    private final UsuarioService service;
+    private final TagService service;
 
     @Autowired
-    public UsuarioController(UsuarioService service) {
+    public TagController(TagService service) {
         this.service = service;
     }
 
     @GetMapping
-    public ResponseEntity<Page<UsuarioResponseDTO>> findAll(@PageableDefault(sort = "nome") Pageable pageable) {
+    public ResponseEntity<Page<TagResponseDTO>> findAll(@PageableDefault(sort = "nome") Pageable pageable) {
         return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<TagResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> save(@Valid @RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<TagResponseDTO> save(@Valid @RequestBody TagRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<TagResponseDTO> update(@PathVariable Long id, @Valid @RequestBody TagRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

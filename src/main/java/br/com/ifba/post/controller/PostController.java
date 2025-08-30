@@ -1,8 +1,8 @@
-package br.com.ifba.usuario.controller;
+package br.com.ifba.post.controller;
 
-import br.com.ifba.usuario.dto.UsuarioRequestDTO;
-import br.com.ifba.usuario.dto.UsuarioResponseDTO;
-import br.com.ifba.usuario.service.UsuarioService;
+import br.com.ifba.post.dto.PostRequestDTO;
+import br.com.ifba.post.dto.PostResponseDTO;
+import br.com.ifba.post.service.PostService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,33 +13,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/usuarios")
-public class UsuarioController {
+@RequestMapping("/api/posts")
+public class PostController {
 
-    private final UsuarioService service;
+    private final PostService service;
 
     @Autowired
-    public UsuarioController(UsuarioService service) {
+    public PostController(PostService service) {
         this.service = service;
     }
 
     @GetMapping
-    public ResponseEntity<Page<UsuarioResponseDTO>> findAll(@PageableDefault(sort = "nome") Pageable pageable) {
+    public ResponseEntity<Page<PostResponseDTO>> findAll(@PageableDefault(sort = "dataPublicacao", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<PostResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> save(@Valid @RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<PostResponseDTO> save(@Valid @RequestBody PostRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<PostResponseDTO> update(@PathVariable Long id, @Valid @RequestBody PostRequestDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 

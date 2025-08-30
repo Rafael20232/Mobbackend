@@ -1,52 +1,71 @@
 package br.com.ifba.usuario.service;
 
+import br.com.ifba.infrastructure.exception.BusinessException;
+import br.com.ifba.infrastructure.exception.ResourceNotFoundException;
+import br.com.ifba.usuario.dto.UsuarioRequestDTO;
+import br.com.ifba.usuario.dto.UsuarioResponseDTO;
 import br.com.ifba.usuario.entity.Usuario;
-import br.com.ifba.usuario.dao.UsuarioRepository;
+import br.com.ifba.usuario.mapper.UsuarioMapper;
+import br.com.ifba.usuario.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository repository) {
+    @Autowired
+    public UsuarioService(UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    // Criar ou atualizar usuário
-    public Usuario save(Usuario usuario) {
-        return repository.save(usuario);
+    public Page<UsuarioResponseDTO> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(UsuarioMapper::toResponseDTO);
     }
 
-    // Buscar todos
-    public List<Usuario> findAll() {
-        return repository.findAll();
+    public UsuarioResponseDTO findById(Long id) {
+        return repository.findById(id)
+                .map(UsuarioMapper::toResponseDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
     }
 
-    // Buscar por ID
-    public Optional<Usuario> findById(Long id) {
-        return repository.findById(id);
+    public UsuarioResponseDTO save(UsuarioRequestDTO dto) {
+        if (repository.existsByEmail(dto.getEmail())) {
+            throw new BusinessException("Email já cadastrado.");
+        }
+        Usuario usuario = UsuarioMapper.toEntity(dto);
+        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+        return UsuarioMapper.toResponseDTO(repository.save(usuario));
     }
 
-    // Atualizar
-    public Optional<Usuario> update(Long id, Usuario usuarioAtualizado) {
-        return repository.findById(id).map(usuario -> {
-            usuario.setNome(usuarioAtualizado.getNome());
-            usuario.setEmail(usuarioAtualizado.getEmail());
-            usuario.setSenha(usuarioAtualizado.getSenha());
-            usuario.setRole(usuarioAtualizado.getRole());
-            return repository.save(usuario);
-        });
+    public UsuarioResponseDTO update(Long id, UsuarioRequestDTO dto) {
+        if (repository.existsByEmailAndIdNot(dto.getEmail(), id)) {
+            throw new BusinessException("Email já cadastrado para outro usuário.");
+        }
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
+
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
+        usuario.setRole(dto.getRole() != null ? dto.getRole().toUpperCase() : "USER");
+        // Opcional: só atualiza a senha se uma nova for fornecida
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+        }
+
+        return UsuarioMapper.toResponseDTO(repository.save(usuario));
     }
 
-    // Deletar
-    public boolean delete(Long id) {
-        return repository.findById(id).map(usuario -> {
-            repository.delete(usuario);
-            return true;
-        }).orElse(false);
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuário não encontrado com ID: " + id);
+        }
+        repository.deleteById(id);
     }
 }

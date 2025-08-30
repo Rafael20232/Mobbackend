@@ -13,14 +13,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // desabilita CSRF (para facilitar testes com Postman/Front)
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/usuarios/**").permitAll() // exemplo: abre o CRUD de usuários
-                        .requestMatchers("/api/posts/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Agora, qualquer requisição começando com /api/ será permitida
+                        .requestMatchers("/api/**").permitAll()
+                        // Qualquer outra requisição fora de /api/ ainda precisará de autenticação
                         .anyRequest().authenticated()
-                )
-                .httpBasic(customizer -> {}); // nova forma, substitui o antigo httpBasic()
+                );
+        // Com .permitAll() para /api/**, o httpBasic pode não ser mais necessário
+        // a menos que você tenha outros endpoints fora de /api/ que queira proteger.
 
         return http.build();
     }
